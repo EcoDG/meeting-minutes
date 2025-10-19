@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회의록 자동화 시스템</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="file"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        input[type="file"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        input[type="file"] {
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        .file-info {
+            margin-top: 8px;
+            font-size: 12px;
+            color: #999;
+        }
+
+        .helper-text {
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        #result {
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 10px;
+            display: none;
+        }
+
+        #result.success {
+            background-color: #d4edda;
+            border: 2px solid #c3e6cb;
+            color: #155724;
+            display: block;
+        }
+
+        #result.error {
+            background-color: #f8d7da;
+            border: 2px solid #f5c6cb;
+            color: #721c24;
+            display: block;
+        }
+
+        #result.loading {
+            background-color: #d1ecf1;
+            border: 2px solid #bee5eb;
+            color: #0c5460;
+            display: block;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top-color: #667eea;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .result-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .result-content {
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .config-section {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+        }
+
+        .config-section h3 {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .config-section input {
+            background: white;
+        }
+
+        .webhook-url {
+            font-family: monospace;
+            font-size: 12px;
+            word-break: break-all;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 25px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎙️ 회의록 자동화</h1>
+        <p class="subtitle">녹음 파일을 업로드하면 자동으로 회의록을 생성합니다</p>
+
+        <div class="config-section">
+            <h3>⚙️ n8n Webhook URL 설정</h3>
+            <input 
+                type="text" 
+                id="webhookUrl" 
+                placeholder="https://your-n8n.app.n8n.cloud/webhook/meeting-upload"
+                value=""
+            >
+            <div class="helper-text">
+                n8n에서 "Webhook - 파일 업로드" 노드의 URL을 복사해서 붙여넣으세요
+            </div>
+        </div>
+
+        <form id="uploadForm">
+            <div class="form-group">
+                <label for="meetingTitle">📌 회의 제목 *</label>
+                <input 
+                    type="text" 
+                    id="meetingTitle" 
+                    placeholder="예: 2025년 1분기 전략 회의" 
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="attendeesCount">👥 참석자 수 *</label>
+                <input 
+                    type="number" 
+                    id="attendeesCount" 
+                    placeholder="예: 5" 
+                    min="1" 
+                    max="50"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="emailList">📧 이메일 수신자 *</label>
+                <input 
+                    type="text" 
+                    id="emailList" 
+                    placeholder="your@email.com, team@email.com" 
+                    required
+                >
+                <div class="helper-text">
+                    여러 명에게 보낼 경우 콤마(,)로 구분하세요
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="audioFile">🎵 녹음 파일 (m4a, mp3) *</label>
+                <input 
+                    type="file" 
+                    id="audioFile" 
+                    accept=".m4a,.mp3,audio/*" 
+                    required
+                >
+                <div class="file-info">
+                    최대 100MB, m4a 또는 mp3 형식
+                </div>
+            </div>
+
+            <button type="submit" id="submitBtn">
+                🚀 회의록 생성 시작
+            </button>
+        </form>
+
+        <div id="result"></div>
+    </div>
+
+    <script>
+        // Webhook URL 저장/불러오기
+        const savedWebhookUrl = localStorage.getItem('webhookUrl');
+        if (savedWebhookUrl) {
+            document.getElementById('webhookUrl').value = savedWebhookUrl;
+        }
+
+        document.getElementById('webhookUrl').addEventListener('change', (e) => {
+            localStorage.setItem('webhookUrl', e.target.value);
+        });
+
+        // 파일 선택 시 정보 표시
+        document.getElementById('audioFile').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const fileSize = (file.size / 1024 / 1024).toFixed(2);
+                const fileInfo = document.querySelector('.file-info');
+                fileInfo.textContent = `선택된 파일: ${file.name} (${fileSize}MB)`;
+                fileInfo.style.color = '#667eea';
+            }
+        });
+
+        // 폼 제출
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const webhookUrl = document.getElementById('webhookUrl').value.trim();
+            
+            if (!webhookUrl) {
+                showResult('error', '❌ Webhook URL을 먼저 설정해주세요!');
+                return;
+            }
+
+            const submitBtn = document.getElementById('submitBtn');
+            const resultDiv = document.getElementById('result');
+
+            // 폼 데이터 준비
+            const formData = new FormData();
+            formData.append('meetingTitle', document.getElementById('meetingTitle').value);
+            formData.append('attendeesCount', document.getElementById('attendeesCount').value);
+            formData.append('emailList', document.getElementById('emailList').value);
+            formData.append('audioFile', document.getElementById('audioFile').files[0]);
+
+            // 버튼 비활성화 및 로딩 표시
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="loading-spinner"></span> 처리 중...';
+            
+            showResult('loading', 
+                '<div class="result-title">⏳ 회의록을 생성하고 있습니다...</div>' +
+                '<div class="result-content">' +
+                '1. 음성을 텍스트로 변환 중...<br>' +
+                '2. AI가 내용을 분석 중...<br>' +
+                '3. 이메일 발송 및 드라이브 저장 중...<br><br>' +
+                '보통 1-3분 정도 소요됩니다. 잠시만 기다려주세요! ☕' +
+                '</div>'
+            );
+
+            try {
+                const response = await fetch(webhookUrl, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showResult('success', 
+                        '<div class="result-title">✅ 회의록이 성공적으로 생성되었습니다!</div>' +
+                        '<div class="result-content">' +
+                        `<strong>회의명:</strong> ${data.meetingTitle}<br>` +
+                        `<strong>파일명:</strong> ${data.fileName}<br>` +
+                        `<strong>이메일 발송:</strong> ${data.emailSent ? '완료 ✓' : '실패 ✗'}<br>` +
+                        `<strong>드라이브 저장:</strong> ${data.driveSaved ? '완료 ✓' : '실패 ✗'}<br><br>` +
+                        '이메일을 확인해주세요! 📧' +
+                        '</div>'
+                    );
+
+                    // 폼 초기화 (회의 제목과 파일만)
+                    document.getElementById('meetingTitle').value = '';
+                    document.getElementById('audioFile').value = '';
+                    document.querySelector('.file-info').textContent = '최대 100MB, m4a 또는 mp3 형식';
+                    document.querySelector('.file-info').style.color = '#999';
+                } else {
+                    throw new Error(data.message || '알 수 없는 오류가 발생했습니다.');
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+                showResult('error', 
+                    '<div class="result-title">❌ 오류가 발생했습니다</div>' +
+                    '<div class="result-content">' +
+                    `<strong>오류 내용:</strong> ${error.message}<br><br>` +
+                    '<strong>해결 방법:</strong><br>' +
+                    '1. Webhook URL이 정확한지 확인해주세요<br>' +
+                    '2. n8n 워크플로우가 활성화되어 있는지 확인해주세요<br>' +
+                    '3. 파일 형식이 m4a 또는 mp3인지 확인해주세요<br>' +
+                    '4. 파일 크기가 100MB 이하인지 확인해주세요' +
+                    '</div>'
+                );
+            } finally {
+                // 버튼 다시 활성화
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '🚀 회의록 생성 시작';
+            }
+        });
+
+        function showResult(type, message) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.className = type;
+            resultDiv.innerHTML = message;
+            resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    </script>
+</body>
+</html>
