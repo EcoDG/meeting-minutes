@@ -483,15 +483,114 @@
             color: #999;
         }
 
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        /* 업무 용어 관리 스타일 */
+        .terms-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .terms-header h2 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin: 0;
+        }
+
+        .terms-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .sheet-link {
+            background: #f0f7ff;
+            color: #4A90E2;
+            border: 1.5px solid #4A90E2;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: inline-block;
+        }
+
+        .sheet-link:hover {
+            background: #4A90E2;
+            color: white;
+        }
+
+        .terms-list {
+            margin-top: 20px;
+        }
+
+        .term-item {
+            background: #f8f9fa;
+            padding: 16px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border: 1.5px solid #e0e0e0;
+            transition: all 0.2s;
+        }
+
+        .term-item:hover {
+            border-color: #4A90E2;
+            background: #f0f7ff;
+        }
+
+        .term-name {
+            font-weight: 600;
+            color: #333;
+            font-size: 15px;
+            margin-bottom: 6px;
+        }
+
+        .term-description {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 6px;
+        }
+
+        .term-meta {
+            font-size: 12px;
+            color: #999;
+            display: flex;
+            gap: 12px;
+        }
+
+        .terms-empty {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+        .add-term-form {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border: 1.5px solid #e0e0e0;
+        }
+
+        .add-term-form.show {
+            display: block;
+        }
+
+        .add-term-form h3 {
+            font-size: 16px;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
         }
 
         @media (max-width: 768px) {
@@ -513,6 +612,11 @@
                 right: 25px;
                 padding: 7px 12px;
                 font-size: 12px;
+            }
+
+            .terms-header {
+                flex-direction: column;
+                align-items: flex-start;
             }
         }
 
@@ -565,6 +669,15 @@
             .qr-content {
                 margin: 20px;
                 max-width: calc(100% - 40px);
+            }
+
+            .terms-actions {
+                width: 100%;
+            }
+
+            .sheet-link, .terms-actions button {
+                flex: 1;
+                text-align: center;
             }
         }
 
@@ -692,26 +805,61 @@
             </div>
         </div>
 
-        <!-- 4. 업무 용어 관리 -->
+        <!-- 4. 업무 용어 관리 (Google Sheets 연동) -->
         <div class="card">
-            <div class="section-title">업무 용어 관리</div>
-            <p style="font-size: 14px; color: #666; margin-bottom: 15px;">
-                자주 사용하는 전문 용어를 등록하면 회의록 작성 시 더 정확하게 인식됩니다.
-            </p>
-            <div class="form-group">
-                <label for="businessTerms">등록된 업무 용어</label>
-                <textarea 
-                    id="businessTerms" 
-                    placeholder="용어를 쉼표(,)로 구분하여 입력하세요&#10;예: SK, 이커머스, 시너지, KPI, ROI, B2B, B2C"
-                    style="min-height: 100px; resize: vertical; font-size: 14px; line-height: 1.6;"
-                ></textarea>
-                <div class="helper-text">
-                    용어는 쉼표(,)로 구분하세요. 저장하면 다음 회의록 생성에 자동 반영됩니다.
+            <div class="terms-header">
+                <h2>📚 업무 용어 관리</h2>
+                <div class="terms-actions">
+                    <a href="https://docs.google.com/spreadsheets/d/1x6Qg0YeeHSzTLCnYH85I_MmoBAz_dpstI8JPfYK-aIg
+/edit" 
+                       target="_blank" 
+                       class="sheet-link">
+                        📊 시트 열기
+                    </a>
+                    <button type="button" id="addTermBtn" class="btn btn-secondary">
+                        ➕ 용어 추가
+                    </button>
+                    <button type="button" id="refreshTermsBtn" class="btn btn-secondary">
+                        🔄 새로고침
+                    </button>
                 </div>
             </div>
-            <button type="button" id="saveTermsBtn" class="btn btn-secondary" style="width: auto;">
-                💾 용어 저장
-            </button>
+            
+            <p style="font-size: 14px; color: #666; margin-bottom: 15px;">
+                자주 사용하는 전문 용어를 등록하면 회의록 작성 시 더 정확하게 인식됩니다. Google Sheets에서 직접 편집하거나 아래에서 추가할 수 있습니다.
+            </p>
+
+            <!-- 용어 추가 폼 -->
+            <div class="add-term-form" id="addTermForm">
+                <h3>새 용어 추가</h3>
+                <div class="form-group">
+                    <label for="newTerm">용어 *</label>
+                    <input type="text" id="newTerm" placeholder="예: ARPU">
+                </div>
+                <div class="form-group">
+                    <label for="newDescription">설명 *</label>
+                    <input type="text" id="newDescription" placeholder="예: 사용자당 평균 수익">
+                </div>
+                <div class="form-group">
+                    <label for="authorName">등록자명</label>
+                    <input type="text" id="authorName" placeholder="예: 김철수">
+                </div>
+                <div class="form-actions">
+                    <button type="button" id="saveNewTermBtn" class="btn btn-primary" style="width: auto;">
+                        💾 저장
+                    </button>
+                    <button type="button" id="cancelAddTermBtn" class="btn btn-secondary" style="width: auto;">
+                        취소
+                    </button>
+                </div>
+            </div>
+
+            <!-- 용어 목록 -->
+            <div class="terms-list" id="termsList">
+                <div class="terms-empty">
+                    <span class="loading-spinner"></span> 용어 목록을 불러오는 중...
+                </div>
+            </div>
         </div>
 
         <!-- 5. 설정 (맨 아래) -->
@@ -738,13 +886,15 @@
     </div>
 
     <script>
-        // 시너지 전략팀 이메일
+        // ========== 설정 ==========
         const TEAM_EMAILS = 'beomcheol@sk.com, dooho2@sk.com, emartboss@sk.com, ch.kim@sk.com, gj.nam@sk.com, ptw@sk.com, sungju.jin@sk.com';
-        
-        // 고정 Webhook URL
         const DEFAULT_WEBHOOK_URL = 'YOUR_WEBHOOK_URL_HERE';
         
-        // 요소 참조
+        // ✅ 여기를 실제 n8n Webhook URL로 변경하세요!
+        const TERMS_GET_URL = 'YOUR_N8N_GET_TERMS_URL_HERE';
+        const TERMS_ADD_URL = 'YOUR_N8N_ADD_TERMS_URL_HERE';
+        
+        // ========== 요소 참조 ==========
         const TERMS_GET_URL = 'https://ecod.app.n8n.cloud/webhook/get-terms';
         const TERMS_ADD_URL = 'https://ecod.app.n8n.cloud/webhook/add-term';
         const webhookUrlInput = document.getElementById('webhookUrl');
@@ -763,38 +913,161 @@
         const qrButton = document.getElementById('qrButton');
         const qrModal = document.getElementById('qrModal');
         const qrClose = document.getElementById('qrClose');
-        const businessTermsTextarea = document.getElementById('businessTerms');
-        const saveTermsBtn = document.getElementById('saveTermsBtn');
         
-        // 기본 업무 용어
-        const defaultTerms = 'SK, 이커머스, 시너지, KPI, ROI, B2B, B2C, MOU, 옴니채널, 풀필먼트, 마켓플레이스, GMV, MAU, DAU, 전환율, 객단가, LTV, CAC, ARPU, 리텐션, 퍼포먼스 마케팅, 브랜딩, 콜라보, 크로스셀, 업셀, 어필리에이트, 인플루언서, CRM, ERP, SCM';
+        // 업무 용어 관련
+        const termsList = document.getElementById('termsList');
+        const addTermBtn = document.getElementById('addTermBtn');
+        const refreshTermsBtn = document.getElementById('refreshTermsBtn');
+        const addTermForm = document.getElementById('addTermForm');
+        const saveNewTermBtn = document.getElementById('saveNewTermBtn');
+        const cancelAddTermBtn = document.getElementById('cancelAddTermBtn');
+        const newTermInput = document.getElementById('newTerm');
+        const newDescriptionInput = document.getElementById('newDescription');
+        const authorNameInput = document.getElementById('authorName');
         
-        // 초기화
+        // ========== 초기화 ==========
         let isEditing = false;
         const savedUrl = localStorage.getItem('webhookUrl') || DEFAULT_WEBHOOK_URL;
         webhookUrlInput.value = savedUrl;
         
-        // 업무 용어 불러오기
-        const savedTerms = localStorage.getItem('businessTerms') || defaultTerms;
-        businessTermsTextarea.value = savedTerms;
+        // ========== 페이지 로드 시 용어 목록 불러오기 ==========
+        window.addEventListener('load', function() {
+            loadTerms();
+        });
         
-        // 업무 용어 저장
-        saveTermsBtn.addEventListener('click', function() {
-            const terms = businessTermsTextarea.value.trim();
-            if (terms) {
-                localStorage.setItem('businessTerms', terms);
-                showResult('success', '<div class="result-title">✅ 업무 용어가 저장되었습니다</div><div class="result-content">다음 회의록 생성부터 자동으로 반영됩니다.</div>');
-            } else {
-                alert('저장할 용어를 입력해주세요.');
+        // ========== 업무 용어 관리 함수 ==========
+        
+        // 용어 목록 불러오기
+        async function loadTerms() {
+            try {
+                termsList.innerHTML = '<div class="terms-empty"><span class="loading-spinner"></span> 용어 목록을 불러오는 중...</div>';
+                
+                const response = await fetch(TERMS_GET_URL);
+                
+                if (!response.ok) {
+                    throw new Error('용어 목록을 불러올 수 없습니다');
+                }
+                
+                const data = await response.json();
+                
+                if (data.success && data.data && data.data.length > 0) {
+                    displayTerms(data.data);
+                } else {
+                    termsList.innerHTML = '<div class="terms-empty">등록된 용어가 없습니다. 새 용어를 추가해보세요!</div>';
+                }
+            } catch (error) {
+                console.error('Error loading terms:', error);
+                termsList.innerHTML = `
+                    <div class="terms-empty" style="color: #f44336;">
+                        ❌ 용어 목록을 불러오지 못했습니다.<br>
+                        <small>${error.message}</small><br>
+                        <small>n8n Webhook URL이 올바른지 확인해주세요.</small>
+                    </div>
+                `;
+            }
+        }
+        
+        // 용어 목록 표시
+        function displayTerms(terms) {
+            if (terms.length === 0) {
+                termsList.innerHTML = '<div class="terms-empty">등록된 용어가 없습니다.</div>';
+                return;
+            }
+            
+            termsList.innerHTML = terms.map(term => `
+                <div class="term-item">
+                    <div class="term-name">${term.term || '용어 없음'}</div>
+                    <div class="term-description">${term.description || '설명 없음'}</div>
+                    <div class="term-meta">
+                        <span>📅 ${term.date || '날짜 없음'}</span>
+                        <span>👤 ${term.author || '작성자 없음'}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // 용어 추가 폼 표시
+        addTermBtn.addEventListener('click', function() {
+            addTermForm.classList.add('show');
+            newTermInput.focus();
+        });
+        
+        // 용어 추가 취소
+        cancelAddTermBtn.addEventListener('click', function() {
+            addTermForm.classList.remove('show');
+            newTermInput.value = '';
+            newDescriptionInput.value = '';
+            authorNameInput.value = '';
+        });
+        
+        // 새 용어 저장
+        saveNewTermBtn.addEventListener('click', async function() {
+            const term = newTermInput.value.trim();
+            const description = newDescriptionInput.value.trim();
+            const author = authorNameInput.value.trim() || '익명';
+            
+            if (!term || !description) {
+                alert('용어와 설명을 모두 입력해주세요.');
+                return;
+            }
+            
+            try {
+                saveNewTermBtn.disabled = true;
+                saveNewTermBtn.innerHTML = '<span class="loading-spinner"></span> 저장 중...';
+                
+                const response = await fetch(TERMS_ADD_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        term: term,
+                        description: description,
+                        author: author
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('용어 추가에 실패했습니다');
+                }
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showResult('success', '<div class="result-title">✅ 용어가 추가되었습니다!</div>');
+                    
+                    // 폼 초기화
+                    newTermInput.value = '';
+                    newDescriptionInput.value = '';
+                    authorNameInput.value = '';
+                    addTermForm.classList.remove('show');
+                    
+                    // 목록 새로고침
+                    loadTerms();
+                } else {
+                    throw new Error(data.message || '알 수 없는 오류');
+                }
+            } catch (error) {
+                console.error('Error adding term:', error);
+                showResult('error', `<div class="result-title">❌ 용어 추가 실패</div><div class="result-content">${error.message}</div>`);
+            } finally {
+                saveNewTermBtn.disabled = false;
+                saveNewTermBtn.innerHTML = '💾 저장';
             }
         });
         
-        // QR 코드 생성 및 표시
+        // 용어 목록 새로고침
+        refreshTermsBtn.addEventListener('click', function() {
+            loadTerms();
+        });
+        
+        // ========== 기존 기능들 ==========
+        
+        // QR 코드 생성
         qrButton.addEventListener('click', function() {
             const currentUrl = window.location.href;
             document.getElementById('qrUrl').textContent = currentUrl;
             
-            // QR 코드 생성 (qrcode.react-google.com API 사용)
             const qrCodeImg = document.createElement('img');
             qrCodeImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(currentUrl)}`;
             qrCodeImg.alt = 'QR Code';
@@ -844,19 +1117,16 @@
             if (files.length > 0) {
                 const file = files[0];
                 
-                // 파일 형식 검증
                 const validTypes = ['audio/mpeg', 'audio/mp4', 'audio/m4a', 'audio/x-m4a'];
                 const isValid = validTypes.includes(file.type) || 
                                file.name.endsWith('.m4a') || 
                                file.name.endsWith('.mp3');
                 
                 if (isValid) {
-                    // input 요소에 파일 할당
                     const dataTransfer = new DataTransfer();
                     dataTransfer.items.add(file);
                     audioFileInput.files = dataTransfer.files;
                     
-                    // 파일 정보 업데이트
                     updateFileInfo(file);
                 } else {
                     alert('m4a 또는 mp3 파일만 업로드 가능합니다.');
@@ -864,14 +1134,12 @@
             }
         });
         
-        // 파일 선택 시
         audioFileInput.addEventListener('change', function(e) {
             if (e.target.files.length > 0) {
                 updateFileInfo(e.target.files[0]);
             }
         });
         
-        // 파일 정보 업데이트 함수
         function updateFileInfo(file) {
             const fileSize = file.size / 1024 / 1024;
             let estimatedTime = '';
@@ -886,7 +1154,6 @@
                 estimatedTime = '5-10분';
             }
             
-            // 드롭존 업데이트
             const dropZoneContent = document.getElementById('dropZoneContent');
             dropZoneContent.innerHTML = `
                 <div class="drop-icon">✅</div>
@@ -898,13 +1165,11 @@
             fileInfo.style.color = '#4A90E2';
         }
         
-        // 시너지 전략팀 버튼
         teamBtn.addEventListener('click', function() {
             emailListInput.value = TEAM_EMAILS;
             emailListInput.focus();
         });
         
-        // URL 수정 버튼 이벤트
         editUrlBtn.addEventListener('click', function() {
             if (!isEditing) {
                 webhookUrlInput.removeAttribute('readonly');
@@ -928,7 +1193,6 @@
             }
         });
 
-        // 진행률 시뮬레이션
         function simulateProgress(estimatedSeconds) {
             progressContainer.style.display = 'block';
             progressBar.style.width = '0%';
@@ -955,7 +1219,6 @@
             nextStep();
         }
 
-        // 폼 제출
         document.getElementById('uploadForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
@@ -994,14 +1257,13 @@
                 estimatedSeconds = 450;
             }
             
-            // 진행률 표시 시작
             simulateProgress(estimatedSeconds);
             
             resultDiv.style.display = 'none';
 
             try {
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 20000); // 20초
+                const timeoutId = setTimeout(() => controller.abort(), 20000);
                 
                 const response = await fetch(webhookUrl, {
                     method: 'POST',
@@ -1018,7 +1280,6 @@
                 const data = await response.json();
 
                 if (data.success) {
-                    // 업로드 기록 추가 (화면 표시만)
                     addHistoryItem({
                         title: document.getElementById('meetingTitle').value,
                         attendees: document.getElementById('attendeesCount').value,
@@ -1047,7 +1308,6 @@
                     document.getElementById('meetingTitle').value = '';
                     document.getElementById('audioFile').value = '';
                     
-                    // 드롭존 초기화
                     const dropZoneContent = document.getElementById('dropZoneContent');
                     dropZoneContent.innerHTML = `
                         <div class="drop-icon">📁</div>
@@ -1086,11 +1346,9 @@
             resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
 
-        // 업로드 기록 추가 (화면에만 표시, 저장 안 함)
         function addHistoryItem(record) {
             const history = document.getElementById('historyList');
             
-            // "업로드 기록이..." 메시지 제거
             if (history.querySelector('.history-empty')) {
                 history.innerHTML = '';
             }
@@ -1114,7 +1372,6 @@
             
             history.insertBefore(item, history.firstChild);
             
-            // 최근 5개만 유지
             const items = history.querySelectorAll('.history-item');
             if (items.length > 5) {
                 items[items.length - 1].remove();
