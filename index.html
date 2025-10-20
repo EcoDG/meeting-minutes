@@ -701,6 +701,25 @@
                 padding: 5px 8px;
                 font-size: 10px;
             }
+            .chip {
+  display: inline-block;
+  background-color: #f0f4f8;
+  color: #333;
+  padding: 6px 12px;
+  border-radius: 16px;
+  margin: 4px;
+  font-size: 14px;
+  border: 1px solid #d0d7de;
+  transition: all 0.2s ease;
+}
+
+.chip:hover {
+  background-color: #e6ebf0;
+  border-color: #c0c7ce;
+  transform: translateY(-1px);
+  cursor: default;
+}
+
         }
     </style>
 </head>
@@ -915,23 +934,25 @@
         }
         
         // 용어 목록 표시
-        function displayTerms(terms) {
-            if (terms.length === 0) {
-                termsList.innerHTML = '<div class="terms-empty">등록된 용어가 없습니다.</div>';
-                return;
-            }
-            
-            termsList.innerHTML = terms.map(term => `
-                <div class="term-item">
-                    <div class="term-name">${term.term || '용어 없음'}</div>
-                    <div class="term-description">${term.description || '설명 없음'}</div>
-                    <div class="term-meta">
-                        <span>📅 ${term.date || '날짜 없음'}</span>
-                        <span>👤 ${term.author || '작성자 없음'}</span>
-                    </div>
-                </div>
-            `).join('');
-        }
+
+function displayTerms(list) {
+  const termsList = document.getElementById('termsList');
+
+  // term만 추출 → 공백 제거 → 중복 제거
+  const terms = Array.from(
+    new Set(
+      list
+        .map(i => (i.term || '').trim())
+        .filter(Boolean)
+    )
+  );
+
+  // 칩 형태로 렌더링
+  termsList.innerHTML = terms.length
+    ? terms.map(t => `<span class="chip">${t}</span>`).join(' ')
+    : '<div class="terms-empty">등록된 용어가 없습니다.</div>';
+}
+
         
         // 용어 추가 폼 표시
         addTermBtn.addEventListener('click', function() {
