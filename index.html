@@ -483,6 +483,17 @@
             color: #999;
         }
 
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         @media (max-width: 768px) {
             .header {
                 padding: 25px;
@@ -582,6 +593,7 @@
 </head>
 <body>
     <div class="container">
+        <!-- 1. 헤더 -->
         <div class="header">
             <h1>📋 미팅 기록 자동화 Agent</h1>
             <p class="subtitle">녹음 파일을 업로드하면 자동으로 회의록을 생성합니다</p>
@@ -598,27 +610,7 @@
             </div>
         </div>
 
-        <div class="card">
-            <div class="section-title">업무 용어 관리</div>
-            <p style="font-size: 14px; color: #666; margin-bottom: 15px;">
-                자주 사용하는 전문 용어를 등록하면 회의록 작성 시 더 정확하게 인식됩니다.
-            </p>
-            <div class="form-group">
-                <label for="businessTerms">등록된 업무 용어</label>
-                <textarea 
-                    id="businessTerms" 
-                    placeholder="용어를 쉼표(,)로 구분하여 입력하세요&#10;예: SK, 이커머스, 시너지, KPI, ROI, B2B, B2C"
-                    style="min-height: 100px; resize: vertical; font-size: 14px; line-height: 1.6;"
-                ></textarea>
-                <div class="helper-text">
-                    용어는 쉼표(,)로 구분하세요. 저장하면 다음 회의록 생성에 자동 반영됩니다.
-                </div>
-            </div>
-            <button type="button" id="saveTermsBtn" class="btn btn-secondary" style="width: auto;">
-                💾 용어 저장
-            </button>
-        </div>
-
+        <!-- 2. 미팅 정보 입력 -->
         <div class="card">
             <div class="section-title">미팅 정보</div>
             <form id="uploadForm">
@@ -692,6 +684,7 @@
             <div id="result"></div>
         </div>
 
+        <!-- 3. 최근 업로드 기록 -->
         <div class="card">
             <div class="section-title">최근 업로드 기록</div>
             <div id="historyList" class="history-section">
@@ -699,6 +692,29 @@
             </div>
         </div>
 
+        <!-- 4. 업무 용어 관리 -->
+        <div class="card">
+            <div class="section-title">업무 용어 관리</div>
+            <p style="font-size: 14px; color: #666; margin-bottom: 15px;">
+                자주 사용하는 전문 용어를 등록하면 회의록 작성 시 더 정확하게 인식됩니다.
+            </p>
+            <div class="form-group">
+                <label for="businessTerms">등록된 업무 용어</label>
+                <textarea 
+                    id="businessTerms" 
+                    placeholder="용어를 쉼표(,)로 구분하여 입력하세요&#10;예: SK, 이커머스, 시너지, KPI, ROI, B2B, B2C"
+                    style="min-height: 100px; resize: vertical; font-size: 14px; line-height: 1.6;"
+                ></textarea>
+                <div class="helper-text">
+                    용어는 쉼표(,)로 구분하세요. 저장하면 다음 회의록 생성에 자동 반영됩니다.
+                </div>
+            </div>
+            <button type="button" id="saveTermsBtn" class="btn btn-secondary" style="width: auto;">
+                💾 용어 저장
+            </button>
+        </div>
+
+        <!-- 5. 설정 (맨 아래) -->
         <div class="card compact">
             <div class="section-title" style="font-size: 12px;">설정</div>
             <div class="form-group" style="margin-bottom: 0;">
@@ -729,6 +745,8 @@
         const DEFAULT_WEBHOOK_URL = 'YOUR_WEBHOOK_URL_HERE';
         
         // 요소 참조
+        const TERMS_GET_URL = 'https://ecod.app.n8n.cloud/webhook/get-terms';
+        const TERMS_ADD_URL = 'https://ecod.app.n8n.cloud/webhook/add-term';
         const webhookUrlInput = document.getElementById('webhookUrl');
         const editUrlBtn = document.getElementById('editUrlBtn');
         const submitBtn = document.getElementById('submitBtn');
@@ -910,9 +928,6 @@
             }
         });
 
-        // 파일 선택 이벤트
-        // (이미 위에서 처리됨 - 삭제)
-
         // 진행률 시뮬레이션
         function simulateProgress(estimatedSeconds) {
             progressContainer.style.display = 'block';
@@ -986,7 +1001,7 @@
 
             try {
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 20000); // 20초로 증가
+                const timeoutId = setTimeout(() => controller.abort(), 20000); // 20초
                 
                 const response = await fetch(webhookUrl, {
                     method: 'POST',
