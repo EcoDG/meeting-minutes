@@ -702,24 +702,34 @@
                 font-size: 10px;
             }
             .chip {
-  display: inline-block;
-  background-color: #f0f4f8;
-  color: #333;
-  padding: 6px 12px;
-  border-radius: 16px;
-  margin: 4px;
-  font-size: 14px;
-  border: 1px solid #d0d7de;
-  transition: all 0.2s ease;
-}
+                  display: inline-block;
+                  background-color: #ffffff;
+                  color: #222;
+                  border: 1.2px solid #d0d7de;
+                  border-radius: 8px;          /* ← 둥근 정도를 줄여 ‘작은 박스형’ 느낌 */
+                  padding: 4px 10px;           /* ← 전체적으로 살짝 줄여 작고 단단한 느낌 */
+                  margin: 4px;
+                  font-size: 13px;             /* ← 글자 작게 */
+                  font-weight: 500;            /* ← 가독성 조금 높이기 */
+                  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06); /* ← 살짝 입체감 */
+                  transition: all 0.2s ease;
+                }
 
-.chip:hover {
-  background-color: #e6ebf0;
-  border-color: #c0c7ce;
-  transform: translateY(-1px);
-  cursor: default;
-}
-
+            .chip:hover {
+              background-color: #f5f7fa;   /* ← hover 시 은은하게 강조 */
+              border-color: #b6bec6;
+              transform: translateY(-1px);
+              cursor: default;
+            }
+            
+            #termsList {
+              display: flex;
+              flex-wrap: wrap;
+              gap: 6px;
+              justify-content: flex-start;
+              align-items: flex-start;
+              padding: 8px 0;
+            }
         }
     </style>
 </head>
