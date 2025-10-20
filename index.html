@@ -805,7 +805,7 @@
             </div>
         </div>
 
-        <!-- 4. 업무 용어 관리 (Google Sheets 연동) -->
+        <!-- 4. 업무 용어 관리 (Google Sheets 연동 - 조회 전용) -->
         <div class="card">
             <div class="terms-header">
                 <h2>📚 업무 용어 관리</h2>
@@ -815,9 +815,6 @@
                        class="sheet-link">
                         📊 시트 열기
                     </a>
-                    <button type="button" id="addTermBtn" class="btn btn-secondary">
-                        ➕ 용어 추가
-                    </button>
                     <button type="button" id="refreshTermsBtn" class="btn btn-secondary">
                         🔄 새로고침
                     </button>
@@ -825,33 +822,9 @@
             </div>
             
             <p style="font-size: 14px; color: #666; margin-bottom: 15px;">
-                자주 사용하는 전문 용어를 등록하면 회의록 작성 시 더 정확하게 인식됩니다. Google Sheets에서 직접 편집하거나 아래에서 추가할 수 있습니다.
+                자주 사용하는 전문 용어를 등록하면 회의록 작성 시 더 정확하게 인식됩니다. 
+                <strong>"📊 시트 열기"</strong>를 클릭하여 Google Sheets에서 직접 용어를 추가/수정하세요.
             </p>
-
-            <!-- 용어 추가 폼 -->
-            <div class="add-term-form" id="addTermForm">
-                <h3>새 용어 추가</h3>
-                <div class="form-group">
-                    <label for="newTerm">용어 *</label>
-                    <input type="text" id="newTerm" placeholder="예: ARPU">
-                </div>
-                <div class="form-group">
-                    <label for="newDescription">설명 *</label>
-                    <input type="text" id="newDescription" placeholder="예: 사용자당 평균 수익">
-                </div>
-                <div class="form-group">
-                    <label for="authorName">등록자명</label>
-                    <input type="text" id="authorName" placeholder="예: 김철수">
-                </div>
-                <div class="form-actions">
-                    <button type="button" id="saveNewTermBtn" class="btn btn-primary" style="width: auto;">
-                        💾 저장
-                    </button>
-                    <button type="button" id="cancelAddTermBtn" class="btn btn-secondary" style="width: auto;">
-                        취소
-                    </button>
-                </div>
-            </div>
 
             <!-- 용어 목록 -->
             <div class="terms-list" id="termsList">
@@ -869,9 +842,10 @@
         // ✅ 고정 Webhook URL
         const MEETING_WEBHOOK_URL = 'https://ecod.app.n8n.cloud/webhook/meeting-upload';
         
-        // ✅ 여기를 실제 n8n Webhook URL로 변경하세요!
+        // ✅ 실제 n8n Production Webhook URL로 변경하세요!
+        // 예시: 'https://ecod.app.n8n.cloud/webhook/get-terms'
+        // ⚠️ 주의: /webhook-test/ 가 아니라 /webhook/ 입니다!
         const TERMS_GET_URL = 'https://ecod.app.n8n.cloud/webhook/get-terms';
-        const TERMS_ADD_URL = 'https://ecod.app.n8n.cloud/webhook/add-term';
         
         // ========== 요소 참조 ==========
         const submitBtn = document.getElementById('submitBtn');
