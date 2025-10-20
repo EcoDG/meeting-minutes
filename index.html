@@ -176,7 +176,8 @@
 
         input[type="text"],
         input[type="number"],
-        input[type="file"] {
+        input[type="file"],
+        textarea {
             width: 100%;
             padding: 12px 16px;
             border: 1.5px solid #e0e0e0;
@@ -188,7 +189,8 @@
         }
 
         input[type="text"]:focus,
-        input[type="number"]:focus {
+        input[type="number"]:focus,
+        textarea:focus {
             outline: none;
             border-color: #4A90E2;
             box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
@@ -597,6 +599,27 @@
         </div>
 
         <div class="card">
+            <div class="section-title">업무 용어 관리</div>
+            <p style="font-size: 14px; color: #666; margin-bottom: 15px;">
+                자주 사용하는 전문 용어를 등록하면 회의록 작성 시 더 정확하게 인식됩니다.
+            </p>
+            <div class="form-group">
+                <label for="businessTerms">등록된 업무 용어</label>
+                <textarea 
+                    id="businessTerms" 
+                    placeholder="용어를 쉼표(,)로 구분하여 입력하세요&#10;예: SK, 이커머스, 시너지, KPI, ROI, B2B, B2C"
+                    style="min-height: 100px; resize: vertical; font-size: 14px; line-height: 1.6;"
+                ></textarea>
+                <div class="helper-text">
+                    용어는 쉼표(,)로 구분하세요. 저장하면 다음 회의록 생성에 자동 반영됩니다.
+                </div>
+            </div>
+            <button type="button" id="saveTermsBtn" class="btn btn-secondary" style="width: auto;">
+                💾 용어 저장
+            </button>
+        </div>
+
+        <div class="card">
             <div class="section-title">미팅 정보</div>
             <form id="uploadForm">
                 <div class="form-group">
@@ -685,7 +708,7 @@
                         type="text" 
                         id="webhookUrl" 
                         placeholder="https://your-n8n.app.n8n.cloud/webhook/meeting-upload"
-                        value="https://ecod.app.n8n.cloud/webhook/meeting-upload"
+                        value="YOUR_WEBHOOK_URL_HERE"
                         readonly
                         style="font-size: 13px; padding: 10px 14px;"
                     >
@@ -703,7 +726,7 @@
         const TEAM_EMAILS = 'beomcheol@sk.com, dooho2@sk.com, emartboss@sk.com, ch.kim@sk.com, gj.nam@sk.com, ptw@sk.com, sungju.jin@sk.com';
         
         // 고정 Webhook URL
-        const DEFAULT_WEBHOOK_URL = 'https://ecod.app.n8n.cloud/webhook/meeting-upload';
+        const DEFAULT_WEBHOOK_URL = 'YOUR_WEBHOOK_URL_HERE';
         
         // 요소 참조
         const webhookUrlInput = document.getElementById('webhookUrl');
@@ -722,11 +745,31 @@
         const qrButton = document.getElementById('qrButton');
         const qrModal = document.getElementById('qrModal');
         const qrClose = document.getElementById('qrClose');
+        const businessTermsTextarea = document.getElementById('businessTerms');
+        const saveTermsBtn = document.getElementById('saveTermsBtn');
+        
+        // 기본 업무 용어
+        const defaultTerms = 'SK, 이커머스, 시너지, KPI, ROI, B2B, B2C, MOU, 옴니채널, 풀필먼트, 마켓플레이스, GMV, MAU, DAU, 전환율, 객단가, LTV, CAC, ARPU, 리텐션, 퍼포먼스 마케팅, 브랜딩, 콜라보, 크로스셀, 업셀, 어필리에이트, 인플루언서, CRM, ERP, SCM';
         
         // 초기화
         let isEditing = false;
         const savedUrl = localStorage.getItem('webhookUrl') || DEFAULT_WEBHOOK_URL;
         webhookUrlInput.value = savedUrl;
+        
+        // 업무 용어 불러오기
+        const savedTerms = localStorage.getItem('businessTerms') || defaultTerms;
+        businessTermsTextarea.value = savedTerms;
+        
+        // 업무 용어 저장
+        saveTermsBtn.addEventListener('click', function() {
+            const terms = businessTermsTextarea.value.trim();
+            if (terms) {
+                localStorage.setItem('businessTerms', terms);
+                showResult('success', '<div class="result-title">✅ 업무 용어가 저장되었습니다</div><div class="result-content">다음 회의록 생성부터 자동으로 반영됩니다.</div>');
+            } else {
+                alert('저장할 용어를 입력해주세요.');
+            }
+        });
         
         // QR 코드 생성 및 표시
         qrButton.addEventListener('click', function() {
@@ -942,10 +985,16 @@
             resultDiv.style.display = 'none';
 
             try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 20000); // 20초로 증가
+                
                 const response = await fetch(webhookUrl, {
                     method: 'POST',
-                    body: formData
+                    body: formData,
+                    signal: controller.signal
                 });
+                
+                clearTimeout(timeoutId);
 
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
