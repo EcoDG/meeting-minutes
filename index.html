@@ -810,8 +810,7 @@
             <div class="terms-header">
                 <h2>📚 업무 용어 관리</h2>
                 <div class="terms-actions">
-                    <a href="https://docs.google.com/spreadsheets/d/1x6Qg0YeeHSzTLCnYH85I_MmoBAz_dpstI8JPfYK-aIg
-/edit" 
+                    <a href="https://docs.google.com/spreadsheets/d/1x6Qg0YeeHSzTLCnYH85I_MmoBAz_dpstI8JPfYK-aIg/edit" 
                        target="_blank" 
                        class="sheet-link">
                         📊 시트 열기
@@ -861,44 +860,20 @@
                 </div>
             </div>
         </div>
-
-        <!-- 5. 설정 (맨 아래) -->
-        <div class="card compact">
-            <div class="section-title" style="font-size: 12px;">설정</div>
-            <div class="form-group" style="margin-bottom: 0;">
-                <label style="font-size: 13px;">Webhook URL</label>
-                <div class="url-container">
-                    <input 
-                        type="text" 
-                        id="webhookUrl" 
-                        placeholder="https://your-n8n.app.n8n.cloud/webhook/meeting-upload"
-                        value="YOUR_WEBHOOK_URL_HERE"
-                        readonly
-                        style="font-size: 13px; padding: 10px 14px;"
-                    >
-                    <button type="button" id="editUrlBtn" class="btn btn-secondary" style="font-size: 13px; padding: 10px 18px;">
-                        수정
-                    </button>
-                </div>
-                <div class="helper-text" style="font-size: 12px;">URL 변경이 필요할 때만 수정 버튼을 클릭하세요</div>
-            </div>
-        </div>
     </div>
 
     <script>
         // ========== 설정 ==========
         const TEAM_EMAILS = 'beomcheol@sk.com, dooho2@sk.com, emartboss@sk.com, ch.kim@sk.com, gj.nam@sk.com, ptw@sk.com, sungju.jin@sk.com';
-        const DEFAULT_WEBHOOK_URL = 'YOUR_WEBHOOK_URL_HERE';
+        
+        // ✅ 고정 Webhook URL
+        const MEETING_WEBHOOK_URL = 'https://ecod.app.n8n.cloud/webhook/meeting-upload';
         
         // ✅ 여기를 실제 n8n Webhook URL로 변경하세요!
-        const TERMS_GET_URL = 'YOUR_N8N_GET_TERMS_URL_HERE';
-        const TERMS_ADD_URL = 'YOUR_N8N_ADD_TERMS_URL_HERE';
-        
-        // ========== 요소 참조 ==========
         const TERMS_GET_URL = 'https://ecod.app.n8n.cloud/webhook/get-terms';
         const TERMS_ADD_URL = 'https://ecod.app.n8n.cloud/webhook/add-term';
-        const webhookUrlInput = document.getElementById('webhookUrl');
-        const editUrlBtn = document.getElementById('editUrlBtn');
+        
+        // ========== 요소 참조 ==========
         const submitBtn = document.getElementById('submitBtn');
         const resultDiv = document.getElementById('result');
         const historyList = document.getElementById('historyList');
@@ -926,9 +901,7 @@
         const authorNameInput = document.getElementById('authorName');
         
         // ========== 초기화 ==========
-        let isEditing = false;
-        const savedUrl = localStorage.getItem('webhookUrl') || DEFAULT_WEBHOOK_URL;
-        webhookUrlInput.value = savedUrl;
+        // (초기화 코드 삭제됨 - Webhook URL 고정)
         
         // ========== 페이지 로드 시 용어 목록 불러오기 ==========
         window.addEventListener('load', function() {
@@ -1169,29 +1142,6 @@
             emailListInput.value = TEAM_EMAILS;
             emailListInput.focus();
         });
-        
-        editUrlBtn.addEventListener('click', function() {
-            if (!isEditing) {
-                webhookUrlInput.removeAttribute('readonly');
-                webhookUrlInput.focus();
-                webhookUrlInput.select();
-                editUrlBtn.textContent = '저장';
-                editUrlBtn.classList.add('editing');
-                isEditing = true;
-            } else {
-                const newUrl = webhookUrlInput.value.trim();
-                if (newUrl && newUrl.startsWith('http')) {
-                    localStorage.setItem('webhookUrl', newUrl);
-                    webhookUrlInput.setAttribute('readonly', true);
-                    editUrlBtn.textContent = '수정';
-                    editUrlBtn.classList.remove('editing');
-                    isEditing = false;
-                    showResult('success', '<div class="result-title">✅ Webhook URL이 저장되었습니다</div>');
-                } else {
-                    alert('올바른 URL을 입력해주세요 (http:// 또는 https://로 시작)');
-                }
-            }
-        });
 
         function simulateProgress(estimatedSeconds) {
             progressContainer.style.display = 'block';
@@ -1221,13 +1171,6 @@
 
         document.getElementById('uploadForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-
-            const webhookUrl = webhookUrlInput.value.trim();
-            
-            if (!webhookUrl) {
-                showResult('error', '<div class="result-title">❌ Webhook URL을 먼저 설정해주세요</div>');
-                return;
-            }
 
             const formData = new FormData();
             formData.append('meetingTitle', document.getElementById('meetingTitle').value);
@@ -1265,7 +1208,7 @@
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => controller.abort(), 20000);
                 
-                const response = await fetch(webhookUrl, {
+                const response = await fetch(MEETING_WEBHOOK_URL, {
                     method: 'POST',
                     body: formData,
                     signal: controller.signal
@@ -1329,9 +1272,9 @@
                     '<div class="result-content">' +
                     `<strong>오류 내용:</strong> ${error.message}<br><br>` +
                     '<strong>해결 방법:</strong><br>' +
-                    '• Webhook URL이 정확한지 확인해주세요<br>' +
-                    '• n8n 워크플로우가 활성화되어 있는지 확인해주세요<br>' +
-                    '• 파일 형식이 m4a 또는 mp3인지 확인해주세요' +
+                    '• 파일 형식이 m4a 또는 mp3인지 확인해주세요<br>' +
+                    '• 파일 크기가 100MB 이하인지 확인해주세요<br>' +
+                    '• n8n 워크플로우가 활성화되어 있는지 확인해주세요' +
                     '</div>'
                 );
             } finally {
