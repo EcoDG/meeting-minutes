@@ -1325,6 +1325,86 @@ function displayTerms(list) {
                 items[items.length - 1].remove();
             }
         }
+        <script>
+(function initUI() {
+  // 요소 안전하게 가져오기
+  const teamBtn = document.getElementById('teamBtn');
+  const emailListInput = document.getElementById('emailList');
+  const dropZone = document.getElementById('dropZone');
+  const audioFileInput = document.getElementById('audioFile');
+  const dropZoneContent = document.getElementById('dropZoneContent');
+
+  // 혹시 이전에 리스너가 붙어 있었다면 제거(중복 방지)
+  function safeOn(el, evt, fn) {
+    if (!el) return;
+    el.replaceWith(el.cloneNode(true));   // 기존 리스너 제거
+    const fresh = document.getElementById(el.id);
+    fresh && fresh.addEventListener(evt, fn);
+    return fresh || el;
+  }
+
+  // 시너지전략팀 버튼
+  if (teamBtn && emailListInput) {
+    teamBtn.addEventListener('click', function () {
+      const TEAM_EMAILS = 'beomcheol@sk.com, dooho2@sk.com, emartboss@sk.com, ch.kim@sk.com, gj.nam@sk.com, ptw@sk.com, sungju.jin@sk.com';
+      emailListInput.value = TEAM_EMAILS;
+      emailListInput.focus();
+    }, { once: false });
+  }
+
+  // 드롭존: 클릭으로 파일 선택 트리거
+  if (dropZone && audioFileInput) {
+    dropZone.style.cursor = 'pointer';
+    dropZone.addEventListener('click', function () {
+      // QR 모달 등 오버레이가 열려 있으면 무시
+      const qrModal = document.getElementById('qrModal');
+      if (qrModal && qrModal.classList.contains('show')) return;
+      audioFileInput.click();
+    });
+
+    // drag & drop
+    dropZone.addEventListener('dragover', function (e) {
+      e.preventDefault(); e.stopPropagation();
+      dropZone.classList.add('drag-over');
+    });
+    dropZone.addEventListener('dragleave', function (e) {
+      e.preventDefault(); e.stopPropagation();
+      dropZone.classList.remove('drag-over');
+    });
+    dropZone.addEventListener('drop', function (e) {
+      e.preventDefault(); e.stopPropagation();
+      dropZone.classList.remove('drag-over');
+      const files = e.dataTransfer.files;
+      if (files && files.length > 0) {
+        const file = files[0];
+        // input에 주입
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        audioFileInput.files = dt.files;
+        // UI 업데이트 (이미 쓰시던 함수가 있으면 그걸 호출)
+        if (typeof updateFileInfo === 'function') updateFileInfo(file);
+        else if (dropZoneContent) {
+          const mb = (file.size/1024/1024).toFixed(2);
+          dropZoneContent.innerHTML = `
+            <div class="drop-icon">✅</div>
+            <div class="drop-text">${file.name}</div>
+            <div class="drop-hint">${mb}MB</div>
+          `;
+        }
+      }
+    });
+  }
+
+  // QR 모달이 열린 상태면 다른 요소 클릭 막힘 → 시작 시 강제 닫기
+  const qrModal = document.getElementById('qrModal');
+  if (qrModal) qrModal.classList.remove('show');
+
+  // 전역 JS 에러가 있으면 즉시 표시 (디버그용)
+  window.addEventListener('error', (e) => {
+    console.error('[UI Error]', e.message);
+  });
+})();
+
     </script>
 </body>
 </html>
