@@ -27,8 +27,112 @@
             background: white;
             border-radius: 16px;
             padding: 30px;
+            padding-right: 100px;
             margin-bottom: 20px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            position: relative;
+        }
+
+        .qr-button {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            background: #f0f7ff;
+            border: 1.5px solid #4A90E2;
+            color: #4A90E2;
+            padding: 8px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .qr-button:hover {
+            background: #4A90E2;
+            color: white;
+        }
+
+        .qr-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .qr-modal.show {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .qr-content {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            text-align: center;
+            max-width: 400px;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .qr-content h3 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .qr-code {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px solid #e0e0e0;
+            margin-bottom: 20px;
+        }
+
+        .qr-url {
+            font-size: 13px;
+            color: #666;
+            word-break: break-all;
+            margin-bottom: 20px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .qr-close {
+            background: #4A90E2;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .qr-close:hover {
+            background: #357ABD;
         }
 
         h1 {
@@ -176,6 +280,48 @@
         .btn-team:hover {
             background: #4A90E2;
             color: white;
+        }
+
+        .file-drop-zone {
+            border: 2px dashed #c0c0c0;
+            border-radius: 12px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #fafafa;
+        }
+
+        .file-drop-zone:hover {
+            border-color: #4A90E2;
+            background: #f0f7ff;
+        }
+
+        .file-drop-zone.drag-over {
+            border-color: #4A90E2;
+            background: #e3f2fd;
+            border-style: solid;
+        }
+
+        .drop-zone-content {
+            pointer-events: none;
+        }
+
+        .drop-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .drop-text {
+            font-size: 16px;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .drop-hint {
+            font-size: 13px;
+            color: #999;
         }
 
         input[type="file"] {
@@ -335,17 +481,56 @@
             color: #999;
         }
 
+        @media (max-width: 768px) {
+            .header {
+                padding: 25px;
+                padding-right: 90px;
+            }
+
+            h1 {
+                font-size: 22px;
+            }
+
+            .subtitle {
+                font-size: 14px;
+            }
+
+            .qr-button {
+                top: 25px;
+                right: 25px;
+                padding: 7px 12px;
+                font-size: 12px;
+            }
+        }
+
         @media (max-width: 600px) {
             .container {
                 padding: 0;
             }
 
-            .header, .card {
+            .header {
+                padding: 20px;
+                padding-right: 75px;
+            }
+
+            .card {
                 padding: 20px;
             }
 
             h1 {
-                font-size: 24px;
+                font-size: 20px;
+                line-height: 1.3;
+            }
+
+            .subtitle {
+                font-size: 13px;
+            }
+
+            .qr-button {
+                top: 20px;
+                right: 20px;
+                padding: 6px 10px;
+                font-size: 11px;
             }
 
             .url-container {
@@ -355,6 +540,41 @@
             .btn-secondary {
                 width: 100%;
             }
+
+            .file-drop-zone {
+                padding: 30px 15px;
+            }
+
+            .drop-icon {
+                font-size: 36px;
+            }
+
+            .qr-content {
+                margin: 20px;
+                max-width: calc(100% - 40px);
+            }
+        }
+
+        @media (max-width: 400px) {
+            .header {
+                padding: 15px;
+                padding-right: 60px;
+            }
+
+            h1 {
+                font-size: 18px;
+            }
+
+            .subtitle {
+                font-size: 12px;
+            }
+
+            .qr-button {
+                top: 15px;
+                right: 15px;
+                padding: 5px 8px;
+                font-size: 10px;
+            }
         }
     </style>
 </head>
@@ -363,6 +583,17 @@
         <div class="header">
             <h1>📋 미팅 기록 자동화 Agent</h1>
             <p class="subtitle">녹음 파일을 업로드하면 자동으로 회의록을 생성합니다</p>
+            <button type="button" class="qr-button" id="qrButton">📱 모바일 접속</button>
+        </div>
+
+        <!-- QR 코드 모달 -->
+        <div class="qr-modal" id="qrModal">
+            <div class="qr-content">
+                <h3>📱 모바일 접속하기</h3>
+                <div class="qr-code" id="qrCode"></div>
+                <div class="qr-url" id="qrUrl"></div>
+                <button class="qr-close" id="qrClose">닫기</button>
+            </div>
         </div>
 
         <div class="card">
@@ -406,13 +637,21 @@
 
                 <div class="form-group">
                     <label for="audioFile">녹음 파일 (m4a, mp3) *</label>
-                    <input 
-                        type="file" 
-                        id="audioFile" 
-                        accept=".m4a,.mp3,audio/*" 
-                        required
-                    >
-                    <div class="file-info">최대 100MB</div>
+                    <div class="file-drop-zone" id="dropZone">
+                        <input 
+                            type="file" 
+                            id="audioFile" 
+                            accept=".m4a,.mp3,audio/*" 
+                            required
+                            style="display: none;"
+                        >
+                        <div class="drop-zone-content" id="dropZoneContent">
+                            <div class="drop-icon">📁</div>
+                            <div class="drop-text">파일을 여기로 드래그하거나 클릭하세요</div>
+                            <div class="drop-hint">m4a, mp3 (최대 100MB)</div>
+                        </div>
+                    </div>
+                    <div class="file-info" id="fileInfo">파일을 선택하세요</div>
                 </div>
 
                 <button type="submit" id="submitBtn" class="btn btn-primary">
@@ -477,11 +716,126 @@
         const progressContainer = document.getElementById('progressContainer');
         const progressBar = document.getElementById('progressBar');
         const progressText = document.getElementById('progressText');
+        const dropZone = document.getElementById('dropZone');
+        const audioFileInput = document.getElementById('audioFile');
+        const fileInfo = document.getElementById('fileInfo');
+        const qrButton = document.getElementById('qrButton');
+        const qrModal = document.getElementById('qrModal');
+        const qrClose = document.getElementById('qrClose');
         
         // 초기화
         let isEditing = false;
         const savedUrl = localStorage.getItem('webhookUrl') || DEFAULT_WEBHOOK_URL;
         webhookUrlInput.value = savedUrl;
+        
+        // QR 코드 생성 및 표시
+        qrButton.addEventListener('click', function() {
+            const currentUrl = window.location.href;
+            document.getElementById('qrUrl').textContent = currentUrl;
+            
+            // QR 코드 생성 (qrcode.react-google.com API 사용)
+            const qrCodeImg = document.createElement('img');
+            qrCodeImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(currentUrl)}`;
+            qrCodeImg.alt = 'QR Code';
+            qrCodeImg.style.maxWidth = '100%';
+            qrCodeImg.style.borderRadius = '8px';
+            
+            const qrCodeDiv = document.getElementById('qrCode');
+            qrCodeDiv.innerHTML = '';
+            qrCodeDiv.appendChild(qrCodeImg);
+            
+            qrModal.classList.add('show');
+        });
+        
+        qrClose.addEventListener('click', function() {
+            qrModal.classList.remove('show');
+        });
+        
+        qrModal.addEventListener('click', function(e) {
+            if (e.target === qrModal) {
+                qrModal.classList.remove('show');
+            }
+        });
+        
+        // 파일 드래그 앤 드롭
+        dropZone.addEventListener('click', function() {
+            audioFileInput.click();
+        });
+        
+        dropZone.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            dropZone.classList.add('drag-over');
+        });
+        
+        dropZone.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            dropZone.classList.remove('drag-over');
+        });
+        
+        dropZone.addEventListener('drop', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            dropZone.classList.remove('drag-over');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                const file = files[0];
+                
+                // 파일 형식 검증
+                const validTypes = ['audio/mpeg', 'audio/mp4', 'audio/m4a', 'audio/x-m4a'];
+                const isValid = validTypes.includes(file.type) || 
+                               file.name.endsWith('.m4a') || 
+                               file.name.endsWith('.mp3');
+                
+                if (isValid) {
+                    // input 요소에 파일 할당
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(file);
+                    audioFileInput.files = dataTransfer.files;
+                    
+                    // 파일 정보 업데이트
+                    updateFileInfo(file);
+                } else {
+                    alert('m4a 또는 mp3 파일만 업로드 가능합니다.');
+                }
+            }
+        });
+        
+        // 파일 선택 시
+        audioFileInput.addEventListener('change', function(e) {
+            if (e.target.files.length > 0) {
+                updateFileInfo(e.target.files[0]);
+            }
+        });
+        
+        // 파일 정보 업데이트 함수
+        function updateFileInfo(file) {
+            const fileSize = file.size / 1024 / 1024;
+            let estimatedTime = '';
+            
+            if (fileSize < 2) {
+                estimatedTime = '1-2분';
+            } else if (fileSize < 5) {
+                estimatedTime = '2-3분';
+            } else if (fileSize < 10) {
+                estimatedTime = '3-5분';
+            } else {
+                estimatedTime = '5-10분';
+            }
+            
+            // 드롭존 업데이트
+            const dropZoneContent = document.getElementById('dropZoneContent');
+            dropZoneContent.innerHTML = `
+                <div class="drop-icon">✅</div>
+                <div class="drop-text">${file.name}</div>
+                <div class="drop-hint">${fileSize.toFixed(2)}MB · ${estimatedTime} 예상</div>
+            `;
+            
+            fileInfo.innerHTML = `<strong>${file.name}</strong> (${fileSize.toFixed(2)}MB)<br>⏱️ 예상 처리 시간: <strong>${estimatedTime}</strong>`;
+            fileInfo.style.color = '#4A90E2';
+        }
         
         // 시너지 전략팀 버튼
         teamBtn.addEventListener('click', function() {
@@ -514,27 +868,7 @@
         });
 
         // 파일 선택 이벤트
-        document.getElementById('audioFile').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const fileSize = file.size / 1024 / 1024;
-                let estimatedTime = '';
-                
-                if (fileSize < 2) {
-                    estimatedTime = '1-2분';
-                } else if (fileSize < 5) {
-                    estimatedTime = '2-3분';
-                } else if (fileSize < 10) {
-                    estimatedTime = '3-5분';
-                } else {
-                    estimatedTime = '5-10분';
-                }
-                
-                const fileInfo = document.querySelector('.file-info');
-                fileInfo.innerHTML = `<strong>${file.name}</strong> (${fileSize.toFixed(2)}MB)<br>⏱️ 예상 처리 시간: <strong>${estimatedTime}</strong>`;
-                fileInfo.style.color = '#4A90E2';
-            }
-        });
+        // (이미 위에서 처리됨 - 삭제)
 
         // 진행률 시뮬레이션
         function simulateProgress(estimatedSeconds) {
@@ -648,8 +982,17 @@
 
                     document.getElementById('meetingTitle').value = '';
                     document.getElementById('audioFile').value = '';
-                    document.querySelector('.file-info').textContent = '최대 100MB';
-                    document.querySelector('.file-info').style.color = '#666';
+                    
+                    // 드롭존 초기화
+                    const dropZoneContent = document.getElementById('dropZoneContent');
+                    dropZoneContent.innerHTML = `
+                        <div class="drop-icon">📁</div>
+                        <div class="drop-text">파일을 여기로 드래그하거나 클릭하세요</div>
+                        <div class="drop-hint">m4a, mp3 (최대 100MB)</div>
+                    `;
+                    
+                    fileInfo.textContent = '파일을 선택하세요';
+                    fileInfo.style.color = '#666';
                 } else {
                     throw new Error(data.message || '알 수 없는 오류가 발생했습니다');
                 }
