@@ -885,17 +885,7 @@
         
         // 업무 용어 관련
         const termsList = document.getElementById('termsList');
-        const addTermBtn = document.getElementById('addTermBtn');
-        // [수정됨] 'refreshTermsBtn' 관련 코드 삭제
-        const addTermForm = document.getElementById('addTermForm');
-        const saveNewTermBtn = document.getElementById('saveNewTermBtn');
-        const cancelAddTermBtn = document.getElementById('cancelAddTermBtn');
-        const newTermInput = document.getElementById('newTerm');
-        const newDescriptionInput = document.getElementById('newDescription');
-        const authorNameInput = document.getElementById('authorName');
-        
-        // ========== 초기화 ==========
-        // (초기화 코드 삭제됨 - Webhook URL 고정)
+        // [참고] HTML에 addTermBtn 등이 없으므로 관련 코드는 실행되지 않습니다.
         
         // ========== 페이지 로드 시 용어 목록 불러오기 ==========
         window.addEventListener('load', function() {
@@ -920,7 +910,7 @@
                 if (data.success && data.data && data.data.length > 0) {
                     displayTerms(data.data);
                 } else {
-                    termsList.innerHTML = '<div class="terms-empty">등록된 용어가 없습니다. 새 용어를 추가해보세요!</div>';
+                    termsList.innerHTML = '<div class="terms-empty">등록된 용어가 없습니다.</div>';
                 }
             } catch (error) {
                 console.error('Error loading terms:', error);
@@ -935,97 +925,22 @@
         }
         
         // 용어 목록 표시
+        function displayTerms(list) {
+            const termsList = document.getElementById('termsList');
+            const terms = Array.from(
+                new Set(
+                    list
+                        .map(i => (i.term || '').trim())
+                        .filter(Boolean)
+                )
+            );
+            termsList.innerHTML = terms.length
+                ? terms.map(t => `<span class="chip">${t}</span>`).join(' ')
+                : '<div class="terms-empty">등록된 용어가 없습니다.</div>';
+        }
 
-function displayTerms(list) {
-  const termsList = document.getElementById('termsList');
-
-  // term만 추출 → 공백 제거 → 중복 제거
-  const terms = Array.from(
-    new Set(
-      list
-        .map(i => (i.term || '').trim())
-        .filter(Boolean)
-    )
-  );
-
-  // 칩 형태로 렌더링
-  termsList.innerHTML = terms.length
-    ? terms.map(t => `<span class="chip">${t}</span>`).join(' ')
-    : '<div class="terms-empty">등록된 용어가 없습니다.</div>';
-}
-
-        
-        // 용어 추가 폼 표시
-        addTermBtn.addEventListener('click', function() {
-            addTermForm.classList.add('show');
-            newTermInput.focus();
-        });
-        
-        // 용어 추가 취소
-        cancelAddTermBtn.addEventListener('click', function() {
-            addTermForm.classList.remove('show');
-            newTermInput.value = '';
-            newDescriptionInput.value = '';
-            authorNameInput.value = '';
-        });
-        
-        // 새 용어 저장
-        saveNewTermBtn.addEventListener('click', async function() {
-            const term = newTermInput.value.trim();
-            const description = newDescriptionInput.value.trim();
-            const author = authorNameInput.value.trim() || '익명';
-            
-            if (!term || !description) {
-                alert('용어와 설명을 모두 입력해주세요.');
-                return;
-            }
-            
-            try {
-                saveNewTermBtn.disabled = true;
-                saveNewTermBtn.innerHTML = '<span class="loading-spinner"></span> 저장 중...';
-                
-                const response = await fetch(TERMS_ADD_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        term: term,
-                        description: description,
-                        author: author
-                    })
-                });
-                
-                if (!response.ok) {
-                    throw new Error('용어 추가에 실패했습니다');
-                }
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    showResult('success', '<div class="result-title">✅ 용어가 추가되었습니다!</div>');
-                    
-                    // 폼 초기화
-                    newTermInput.value = '';
-                    newDescriptionInput.value = '';
-                    authorNameInput.value = '';
-                    addTermForm.classList.remove('show');
-                    
-                    // 목록 새로고침
-                    loadTerms();
-                } else {
-                    throw new Error(data.message || '알 수 없는 오류');
-                }
-            } catch (error) {
-                console.error('Error adding term:', error);
-                showResult('error', `<div class="result-title">❌ 용어 추가 실패</div><div class="result-content">${error.message}</div>`);
-            } finally {
-                saveNewTermBtn.disabled = false;
-                saveNewTermBtn.innerHTML = '💾 저장';
-            }
-        });
-        
-        // [수정됨] 'refreshTermsBtn'의 이벤트 리스너가 삭제되었습니다.
+        // [수정됨] 'addTermBtn' 등이 없으므로 관련 이벤트 리스너 코드(용어 추가 폼 표시, 취소, 저장)를 제거했습니다.
+        // [수정됨] 'refreshTermsBtn'이 없으므로 관련 이벤트 리스너 코드를 제거했습니다.
         
         // ========== 기존 기능들 ==========
         
@@ -1057,9 +972,6 @@ function displayTerms(list) {
             }
         });
         
-        // [수정됨] 'dropZone'과 'teamBtn'의 이벤트 리스너를 이 스크립트 블록에서 제거했습니다.
-        // 아래의 두 번째 스크립트 블록(initUI)에서 해당 기능을 처리합니다.
-
         audioFileInput.addEventListener('change', function(e) {
             if (e.target.files.length > 0) {
                 updateFileInfo(e.target.files[0]);
@@ -1154,7 +1066,8 @@ function displayTerms(list) {
 
             try {
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 20000);
+                // [참고] 타임아웃을 20초 -> 120초 (2분) 정도로 늘리는 것을 권장합니다.
+                const timeoutId = setTimeout(() => controller.abort(), 120000); // 120초
                 
                 const response = await fetch(MEETING_WEBHOOK_URL, {
                     method: 'POST',
@@ -1268,22 +1181,13 @@ function displayTerms(list) {
                 items[items.length - 1].remove();
             }
         }
-    </script> <script> (function initUI() {
-  // 요소 안전하게 가져오기
+    </script> <script>
+(function initUI() {
   const teamBtn = document.getElementById('teamBtn');
   const emailListInput = document.getElementById('emailList');
   const dropZone = document.getElementById('dropZone');
   const audioFileInput = document.getElementById('audioFile');
   const dropZoneContent = document.getElementById('dropZoneContent');
-
-  // 혹시 이전에 리스너가 붙어 있었다면 제거(중복 방지)
-  function safeOn(el, evt, fn) {
-    if (!el) return;
-    el.replaceWith(el.cloneNode(true));   // 기존 리스너 제거
-    const fresh = document.getElementById(el.id);
-    fresh && fresh.addEventListener(evt, fn);
-    return fresh || el;
-  }
 
   // 시너지전략팀 버튼
   if (teamBtn && emailListInput) {
@@ -1291,14 +1195,13 @@ function displayTerms(list) {
       const TEAM_EMAILS = 'beomcheol@sk.com, dooho2@sk.com, emartboss@sk.com, ch.kim@sk.com, gj.nam@sk.com, ptw@sk.com, sungju.jin@sk.com';
       emailListInput.value = TEAM_EMAILS;
       emailListInput.focus();
-    }, { once: false });
+    });
   }
 
   // 드롭존: 클릭으로 파일 선택 트리거
   if (dropZone && audioFileInput) {
     dropZone.style.cursor = 'pointer';
     dropZone.addEventListener('click', function () {
-      // QR 모달 등 오버레이가 열려 있으면 무시
       const qrModal = document.getElementById('qrModal');
       if (qrModal && qrModal.classList.contains('show')) return;
       audioFileInput.click();
@@ -1319,11 +1222,9 @@ function displayTerms(list) {
       const files = e.dataTransfer.files;
       if (files && files.length > 0) {
         const file = files[0];
-        // input에 주입
         const dt = new DataTransfer();
         dt.items.add(file);
         audioFileInput.files = dt.files;
-        // UI 업데이트 (이미 쓰시던 함수가 있으면 그걸 호출)
         if (typeof updateFileInfo === 'function') updateFileInfo(file);
         else if (dropZoneContent) {
           const mb = (file.size/1024/1024).toFixed(2);
