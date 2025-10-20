@@ -222,14 +222,21 @@
 
         <div class="config-section">
             <h3>⚙️ n8n Webhook URL 설정</h3>
-            <input 
-                type="text" 
-                id="webhookUrl" 
-                placeholder="https://your-n8n.app.n8n.cloud/webhook/meeting-upload"
-                value=""
-            >
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <input 
+                    type="text" 
+                    id="webhookUrl" 
+                    placeholder="https://your-n8n.app.n8n.cloud/webhook/meeting-upload"
+                    value="https://ecod.app.n8n.cloud/webhook/meeting-upload"
+                    readonly
+                    style="flex: 1;"
+                >
+                <button type="button" id="editUrlBtn" style="width: auto; padding: 10px 20px; margin: 0;">
+                    수정
+                </button>
+            </div>
             <div class="helper-text">
-                n8n에서 "Webhook - 파일 업로드" 노드의 URL을 복사해서 붙여넣으세요
+                Webhook URL이 변경되었을 때만 "수정" 버튼을 클릭하세요
             </div>
         </div>
 
@@ -360,16 +367,33 @@
                 const data = await response.json();
 
                 if (data.success) {
-                    showResult('success', 
-                        '<div class="result-title">✅ 회의록이 성공적으로 생성되었습니다!</div>' +
-                        '<div class="result-content">' +
-                        `<strong>회의명:</strong> ${data.meetingTitle}<br>` +
-                        `<strong>파일명:</strong> ${data.fileName}<br>` +
-                        `<strong>이메일 발송:</strong> ${data.emailSent ? '완료 ✓' : '실패 ✗'}<br>` +
-                        `<strong>드라이브 저장:</strong> ${data.driveSaved ? '완료 ✓' : '실패 ✗'}<br><br>` +
-                        '이메일을 확인해주세요! 📧' +
-                        '</div>'
-                    );
+                    // 처리 중 vs 완료 상태 구분
+                    if (data.status === 'processing') {
+                        showResult('success', 
+                            '<div class="result-title">✅ 회의록 생성이 시작되었습니다!</div>' +
+                            '<div class="result-content">' +
+                            `<strong>회의명:</strong> ${data.meetingTitle}<br>` +
+                            `<strong>상태:</strong> 처리 중 🔄<br><br>` +
+                            '<strong>다음 단계:</strong><br>' +
+                            '1. 음성을 텍스트로 변환 중...<br>' +
+                            '2. AI가 회의록을 작성 중...<br>' +
+                            '3. 이메일 발송 및 드라이브 저장 중...<br><br>' +
+                            '⏱️ <strong>약 1-3분 후 이메일을 확인해주세요!</strong><br>' +
+                            '처리가 완료되면 입력하신 이메일 주소로 회의록이 발송됩니다. 📧' +
+                            '</div>'
+                        );
+                    } else {
+                        showResult('success', 
+                            '<div class="result-title">✅ 회의록이 성공적으로 생성되었습니다!</div>' +
+                            '<div class="result-content">' +
+                            `<strong>회의명:</strong> ${data.meetingTitle}<br>` +
+                            `<strong>파일명:</strong> ${data.fileName || 'N/A'}<br>` +
+                            `<strong>이메일 발송:</strong> ${data.emailSent ? '완료 ✓' : '대기 중 ⏳'}<br>` +
+                            `<strong>드라이브 저장:</strong> ${data.driveSaved ? '완료 ✓' : '대기 중 ⏳'}<br><br>` +
+                            '이메일을 확인해주세요! 📧' +
+                            '</div>'
+                        );
+                    }
 
                     // 폼 초기화 (회의 제목과 파일만)
                     document.getElementById('meetingTitle').value = '';
